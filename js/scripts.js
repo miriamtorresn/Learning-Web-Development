@@ -106,11 +106,7 @@ const updateCartItem = (id, type) => {
                         item.quantity += 1;
                         break;
                     case 'substract':
-                        if (item.quantity > 1) {
-                            item.quantity -= 1;
-                        } else {
-                            updateCartItem(id, 'delete');
-                        }
+                        item.quantity > 1 ? item.quantity -= 1 : updateCartItem(id, 'delete');
                         break;
                 }
             }
