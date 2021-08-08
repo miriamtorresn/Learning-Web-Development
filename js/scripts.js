@@ -1,5 +1,5 @@
 // Variables declaration
-const cartElements = [];
+let cartElements = [];
 const products = [
     { // => 0
         "id": "PROD0001",
@@ -28,23 +28,54 @@ const products = [
  * @param {string} id
  */
 const addToCart = (event, id) => {
+    updateCart(event, () => { productExits(id) ? updateCartItem(id, 'add') : addNewItemToCart(id) });
+};
+
+/**
+ * Substracting an element from the cart
+ * 
+ * @param {event} event 
+ * @param {string} id
+ */
+const substactFromCart = (event, id) => {
+    updateCart(event, () => {
+        if (productExits(id)) {
+            updateCartItem(id, 'substract');
+        }
+    });
+};
+
+/**
+ * Substracting an element from the cart
+ * 
+ * @param {event} event 
+ * @param {string} id
+ */
+const deleteFromCart = (event, id) => {
+    updateCart(event, () => { updateCartItem(id, 'delete'); });
+};
+
+/**
+ * Updating cart elements by excecuting a custom action
+ * 
+ * @param {event} event 
+ * @param {function} action
+ */
+const updateCart = (event, action) => {
     event.preventDefault();
-    updateCartItems(id);
+    action();
     updateCartQuantity();
     updateCartSummary();
 };
 
 /**
- * Updates items at the card, deciding to add a new item
- * or modify an existing one
+ * Verify if a product exist within the cart
  * 
  * @param {string} id
+ * @return {boolean}
  */
-const updateCartItems = (id) => {
-    const alreadyExist = cartElements.find((item) => item.id === id);
-
-    // Ternary condition
-    alreadyExist ? updateCartItem(id, 'addition') : addNewItemToCart(id);
+const productExits = (id) => {
+    return cartElements.some((item) => item.id === id);
 };
 
 /**
@@ -63,12 +94,29 @@ const updateCartQuantity = () => {
  * @param {string} type 
  */
 const updateCartItem = (id, type) => {
-    cartElements.map((item) => {
-        if (item.id === id) {
-            type === 'addition' ? item.quantity += 1 : item.quantity -= 1;
-        }
-        return item;
-    });
+    if (type === 'delete') {
+        cartElements = cartElements.filter((item) => {
+            return item.id !== id;
+        });
+    } else {
+        cartElements.map((item) => {
+            if (item.id === id) {
+                switch (type) {
+                    case 'add':
+                        item.quantity += 1;
+                        break;
+                    case 'substract':
+                        if (item.quantity > 1) {
+                            item.quantity -= 1;
+                        } else {
+                            updateCartItem(id, 'delete');
+                        }
+                        break;
+                }
+            }
+            return item;
+        });
+    }
 };
 
 /**
@@ -124,7 +172,9 @@ const loadProducts = () => {
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text">${product.description}</p>
                     <p class="card-text price">$${product.price} ${product.currency}</p>
-                    <a href="#" class="btn btn-primary" onClick="addToCart(event, '${product.id}')">Add to Cart</a>
+                    <a href="#" class="btn btn-primary" onClick="addToCart(event, '${product.id}')">+</a>
+                    <a href="#" class="btn btn-primary" onClick="substactFromCart(event, '${product.id}')">-</a>
+                    <a href="#" class="btn btn-primary" onClick="deleteFromCart(event, '${product.id}')">Delete All</a>
                     </div>
                 </div>
             </div>`;
