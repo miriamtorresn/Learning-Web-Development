@@ -148,37 +148,57 @@ const updateCartSummary = () => {
 /**
  * Loads the products within the page.
  */
-const printProductsList = () => {
+const printProductsList = (search = null) => {
     let productsHTML = '';
 
     // Filter products
 
-    products
+    const filteredProducts = products
         //.filter((product) => {
             // pagina de producto coincide => propiedad que agregamos con el map de page, con la que debo mostrar
             // URL => si tiene parametro page => usar este valor para saber q lo muestras
             // si no tiene parametro page (?page=1) => mostrar la primera pagina
         // })
         // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-    .forEach((product) => {
-        productsHTML += `
-            <div class="col-3">
-                <div class="card">
-                    <img src="${product.image}" class="card-img-top" alt="${product.name}">
-                    <div class="card-body">
-                    <h5 class="card-title">${product.name}</h5>
-                    <p class="card-text">${product.description}</p>
-                    <p class="card-text price">$${product.price} ${product.currency}</p>
-                    <a href="#" class="btn btn-primary" onClick="addToCart(event, '${product.id}')">+</a>
-                    <span>0</span>
-                    <a href="#" class="btn btn-primary" onClick="substactFromCart(event, '${product.id}')">-</a>
-                    <a href="#" class="btn btn-primary" onClick="deleteFromCart(event, '${product.id}')">Delete All</a>
-                    </div>
-                </div>
-            </div>`;
+    .filter((product) => {
+        let showProduct = true;
+        if (search) {
+            const productName = product.name.toLowerCase();
+            const searchQuery = search.toLowerCase();
+            // Reto: Usar expresion regular
+            // https://www.codecademy.com/resources/docs/javascript/regexp
+            // https://regex101.com/
+
+            showProduct = productName.includes(searchQuery);
+        }
+        return showProduct;
     });
-    
-    document.getElementById('products-list').innerHTML = productsHTML;
+
+    if (filteredProducts.length > 0) {
+        // There are results
+        filteredProducts.forEach((product) => {
+            productsHTML += `
+                <div class="col-3">
+                    <div class="card">
+                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                        <h5 class="card-title">${product.name}</h5>
+                        <p class="card-text">${product.description}</p>
+                        <p class="card-text price">$${product.price} ${product.currency}</p>
+                        <a href="#" class="btn btn-primary" onClick="addToCart(event, '${product.id}')">+</a>
+                        <span>0</span>
+                        <a href="#" class="btn btn-primary" onClick="substactFromCart(event, '${product.id}')">-</a>
+                        <a href="#" class="btn btn-primary" onClick="deleteFromCart(event, '${product.id}')">Delete All</a>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        document.getElementById('products-list').innerHTML = productsHTML;
+    } else {
+        // There are not results
+        document.getElementById('products-list').innerHTML = 'No results found';
+    }
 }
 
 /**
@@ -244,10 +264,6 @@ const loadProducts = () => {
                         </nav>
                     */
 
-                console.log(products);
-                console.log(products.length);
-                console.log(paginationItems);
-
                 // PRINT THE PRODUCT LIST IN THE PAGE
                 printProductsList();
             } else {
@@ -276,6 +292,15 @@ const loadProducts = () => {
  
     // Do the request
     request.send();
+};
+
+/**
+ * Performing a Search.
+ */
+const doSearch = (event) => {
+    event.preventDefault();
+    const search = document.getElementById('search').value;
+    printProductsList(search);
 };
 
 // When the document is loaded, then I load the products.
