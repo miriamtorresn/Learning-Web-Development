@@ -1,7 +1,7 @@
 // Variables declaration
 let cartElements = [];
 let products = [];
-const paginationItems = 5;
+const paginationItems = 8;
 
 /**
  * Adding an element to the cart
@@ -152,14 +152,7 @@ const printProductsList = (search = null) => {
     let productsHTML = '';
 
     // Filter products
-
     const filteredProducts = products
-        //.filter((product) => {
-            // pagina de producto coincide => propiedad que agregamos con el map de page, con la que debo mostrar
-            // URL => si tiene parametro page => usar este valor para saber q lo muestras
-            // si no tiene parametro page (?page=1) => mostrar la primera pagina
-        // })
-        // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
     .filter((product) => {
         let showProduct = true;
         if (search) {
@@ -176,24 +169,22 @@ const printProductsList = (search = null) => {
 
     if (filteredProducts.length > 0) {
         // There are results
-        filteredProducts.forEach((product) => {
-            productsHTML += `
-                <div class="col-3">
-                    <div class="card">
-                        <img src="${product.image}" class="card-img-top" alt="${product.name}">
-                        <div class="card-body">
-                        <h5 class="card-title">${product.name}</h5>
-                        <p class="card-text">${product.description}</p>
-                        <p class="card-text price">$${product.price} ${product.currency}</p>
-                        <a href="#" class="btn btn-primary" onClick="addToCart(event, '${product.id}')">+</a>
-                        <span>0</span>
-                        <a href="#" class="btn btn-primary" onClick="substactFromCart(event, '${product.id}')">-</a>
-                        <a href="#" class="btn btn-primary" onClick="deleteFromCart(event, '${product.id}')">Delete All</a>
-                        </div>
-                    </div>
-                </div>`;
+
+        // Get page that I have active in the URL
+        const activePage = getActivePage();
+        // Get the number of pages that I need to display
+        const productsPages = divideArray(filteredProducts, paginationItems);
+        // Products tht needs to be displayed in the current active page
+        const productsAtPage = productsPages[activePage - 1];
+
+        // Load each product card HTML
+        productsAtPage.forEach((product) => {
+            productsHTML += getProductCardHTML(product);
         });
 
+        // Print pagination HTML according the number of pages
+        document.getElementById('pagination-list').innerHTML = loadPagination(productsPages.length, activePage);
+        // Printing the product cards.
         document.getElementById('products-list').innerHTML = productsHTML;
     } else {
         // There are not results
@@ -253,43 +244,6 @@ const loadProducts = () => {
             // FILL THE VARIABLE PRODUCTS WITH THE RESPONSE
             products = response;
 
-            // IMPLEMENT PAGINATION
-
-            // Map products array (info del producto, index) to add a new property to define the page number
-                // Dividir length entre los items de paginacion 17 / 5 => multiplos (4)
-                // Asignar a que pagina pertenece basada en el index
-
-                /*
-                    {
-                        "name": "Sleek Granite Bike",
-                        "description": "Carbonite web goalkeeper gloves are ergonomically designed to give easy fit",
-                        "color": "black",
-                        "image": "http://placeimg.com/640/480/city",
-                        "currency": "MGA",
-                        "price": "853.00",
-                        "id": "1",
-                        "page": 1
-                    },
-                */
-
-                // segun el numero de paginas crear los links de navegcion en el html (id div)
-                // hacer un for de cada pagina => para que agregue un enlace con el href del link ?page=1
-                // si en la url tines el parametro agregarle la clase active al elemento activo (url)
-                // si el elemento esta activo tambien agregarle la palabra current
-                /*
-
-                    <nav>
-                        <!-- href del link => url actual agregandole ?page=1 -->
-                        <ul class="pagination">
-                        <li class="page-item"><a class="page-link" href="?">1</a></li>
-                        <li class="page-item ">
-                            <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        </ul>
-                    </nav>
-                */
-
             // PRINT THE PRODUCT LIST IN THE PAGE
             printProductsList();
         })
@@ -320,6 +274,80 @@ const doSearch = (event) => {
     event.preventDefault();
     const search = document.getElementById('search').value;
     printProductsList(search);
+};
+
+/**
+ * Get Active page based on URL parameters
+ * 
+ * @return {number}
+ */
+ const getActivePage = () => {
+    // Documentation at:
+    // https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
+
+    const searchParams = new URLSearchParams(window.location.search);
+    return Number(searchParams.get('page')) || 1;
+};
+
+/**
+ * Return product information as HTML
+ * 
+ * @param {object} product 
+ * @returns 
+ */
+ const getProductCardHTML = (product) => {
+    return `
+        <div class="col-3">
+            <div class="card">
+                <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text">${product.description}</p>
+                <p class="card-text price">$${product.price} ${product.currency}</p>
+                <a href="#" class="btn btn-primary" onClick="addToCart(event, '${product.id}')">+</a>
+                <span>0</span>
+                <a href="#" class="btn btn-primary" onClick="substactFromCart(event, '${product.id}')">-</a>
+                <a href="#" class="btn btn-primary" onClick="deleteFromCart(event, '${product.id}')">Delete All</a>
+                </div>
+            </div>
+        </div>`;
+}
+
+/**
+ * Creating pagination links
+ * 
+ * @param {number} length
+ * @param {number} activePage
+ * @returns {string}
+ */
+const loadPagination = (length, activePage) => {
+    let links = '';
+
+    for (let i = 1; i <= length; i++) {
+        links += `<li class="page-item ${activePage === i ? 'active' : ''}">
+            <a class="page-link" href="${window.location.origin}${window.location.pathname}?page=${i}">${i}</a>
+        </li>`;
+    }
+
+    return links;
+};
+
+/**
+ * Dividing an array based on an specific number of items
+ * 
+ * @param {array} array
+ * @param {number} items
+ * @return {array}
+ */
+const divideArray = (array, items) => {
+    // Useful documentation:
+    // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Math/ceil
+    // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
+    // https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
+
+    return new Array(Math.ceil(array.length / items))
+    .fill()
+    .map(() => array.splice(0, items));
 };
 
 // When the document is loaded, then I load the products.
