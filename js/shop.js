@@ -111,7 +111,7 @@
                   <p class="card-text">${product.description}</p>
                   <p class="card-text price">$${product.price} ${product.currency}</p>
                   <a href="#" class="btn btn-primary" onClick="shop.cart.addToCart(event, '${product.id}')">+</a>
-                  <span>0</span>
+                  <span id="card-product-quantity-${product.id}">0</span>
                   <a href="#" class="btn btn-primary" onClick="shop.cart.substactFromCart(event, '${product.id}')">-</a>
                   <a href="#" class="btn btn-primary" onClick="shop.cart.deleteFromCart(event, '${product.id}')">Delete All</a>
                   </div>
