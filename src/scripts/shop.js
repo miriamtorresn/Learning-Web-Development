@@ -1,3 +1,5 @@
+import Cart from './cart';
+
 /**
  * Shop is a class that adds the ability of managing
  * my Online Store and products
@@ -131,3 +133,5 @@
       this.printProductsList(search);
   }
 }
+
+export default Shop;
