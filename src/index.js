@@ -1,9 +1,13 @@
-function component() {
-  const element = document.createElement('div');
+import AjaxHandler from './scripts/ajaxHandler';
+import Utils from './scripts/utils';
+import Pagination from './scripts/pagination';
+import Shop from './scripts/Shop';
 
-  element.innerHTML = 'Hello world!';
+// Variables declaration
+const ajax = new AjaxHandler();
+const utils = new Utils();
+const pagination = new Pagination(utils);
+global.shop = new Shop(utils, pagination, ajax);
 
-  return element;
-}
-
-document.body.appendChild(component());
+// When the document is loaded, then I load the products.
+global.shop.loadProducts();

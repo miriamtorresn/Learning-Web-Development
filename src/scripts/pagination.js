@@ -37,3 +37,5 @@
       return links;
   }
 }
+
+export default Pagination;

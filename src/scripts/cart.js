@@ -168,3 +168,5 @@
       return { ...product, ...productData };
   }
 }
+
+export default Cart;

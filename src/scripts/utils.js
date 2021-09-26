@@ -41,3 +41,5 @@
       return searchParams.get(param);
   }
 }
+
+export default Utils;
