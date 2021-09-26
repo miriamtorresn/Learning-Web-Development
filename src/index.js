@@ -1,3 +1,5 @@
+import './scss/styles.scss';
+
 import AjaxHandler from './scripts/ajaxHandler';
 import Utils from './scripts/utils';
 import Pagination from './scripts/pagination';
