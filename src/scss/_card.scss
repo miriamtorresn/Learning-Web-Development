@@ -1,0 +1,8 @@
+.card {
+  @include border-radius(16px);
+
+  &-img-top {
+    @include border-radius-top-left(16px);
+    @include border-radius-top-right(16px);
+  }
+}
