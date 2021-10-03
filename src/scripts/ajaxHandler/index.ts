@@ -1,14 +1,16 @@
+import { IAjaxHandler, IAjaxError } from './interfaces';
+
 /**
  * This is a Class that handles API Calls
  */
- class AjaxHandler {
+ class AjaxHandler implements IAjaxHandler {
   /**
    * Receive a URL to make a get API Call
    * 
    * @param {string} path URL to make API
    * @returns {Promise}
    */
-  get(path) {
+  get(path: string): Promise<any|IAjaxError>  {
       return this.makeAPICall('GET', path);
   }
 
@@ -19,7 +21,7 @@
    * @param {string} path URL to make API
    * @returns {Promise}
    */
-  makeAPICall(method, path) {
+  makeAPICall(method: string, path: string): Promise<any|IAjaxError> {
       return new Promise((resolve, reject) => {
           // MAKE API CALL
           // Prepare a variable for the HTTP request

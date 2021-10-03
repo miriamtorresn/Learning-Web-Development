@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
   // https://webpack.js.org/guides/getting-started/
-  entry: './src/index.js',
+  entry: './src/index.ts',
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'dist/scripts'),
@@ -37,6 +37,14 @@ module.exports = {
           "sass-loader",
         ],
       },
+      {
+        test: /\.ts?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
     ]
-  }
+  },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  },
 };
