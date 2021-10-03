@@ -1,5 +1,10 @@
-Hola Mundo!
+Hello World! 
 
-Agregando nueva línea
+This is a web development learning project started to develop the following skills:
 
-Gracias por colaborar
+- HTML
+- Javascript
+- CSS
+- Sass
+- Webpack
+- Typescript
