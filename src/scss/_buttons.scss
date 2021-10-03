@@ -1,0 +1,27 @@
+.btn {
+  @include border-radius(16px);
+  border: none;
+
+  &:hover {
+    background-color: $dark-pink;
+    color: $white;
+  }
+
+  &-primary {
+    background-color: $main-color;
+  }
+
+  &-secondary {
+    background-color: $white;
+    border: solid 2px $main-color;
+    color: $main-color;
+
+    &:hover {
+      border: solid 2px $dark-pink;
+    }
+  }
+
+  &-small {
+    @include border-radius(8px);
+  }
+}
