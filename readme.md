@@ -1,6 +1,6 @@
 Hello World! 
 
-This is a web development learning project started to develop the following skills:
+This is a result of a web development learning project started to develop the following skills in the course participants:
 
 - HTML
 - Javascript
