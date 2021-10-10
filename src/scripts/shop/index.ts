@@ -1,11 +1,23 @@
-import Cart from './cart';
+import Cart from '../cart';
+import { ICart, IProduct } from '../cart/interfaces';
+import { IUtils } from '../utils/interfaces';
+import { IAjaxHandler, IAjaxError } from '../ajaxHandler/interfaces';
+import { IPagination } from '../pagination/interfaces';
+import { IShop } from './interfaces';
 
 /**
  * Shop is a class that adds the ability of managing
  * my Online Store and products
  */
- class Shop {
-  constructor(utils, pagination, ajax) {
+ class Shop implements IShop {
+  cart: ICart;
+  products: IProduct[];
+  utils: IUtils;
+  ajax: IAjaxHandler;
+  pagination: IPagination;
+  paginationItems: number;
+
+  constructor(utils: IUtils, pagination: IPagination, ajax: IAjaxHandler) {
       this.products = [];
       this.paginationItems = 8;
       this.pagination = pagination;
@@ -16,10 +28,12 @@ import Cart from './cart';
 
   /**
    * Loads the products within the page.
+   * 
+   * @returns {void}
    */
-  loadProducts() {
+  loadProducts(): void {
       this.ajax.get('https://61101b8dc848c900171b3a84.mockapi.io/products')
-          .then((response) => {
+          .then((response: IProduct[]) => {
               // FILL THE VARIABLE PRODUCTS WITH THE RESPONSE
               this.products = response;
 
@@ -27,7 +41,7 @@ import Cart from './cart';
               this.printProductsList();
               this.cart.updateProducts(this.products);
           })
-          .catch(error => {
+          .catch((error: IAjaxError) => {
               console.error(error);
               // IS NOT SUCCESS
               // SAY TO THE USER THAT SOMETHING WENT WRONG
@@ -53,16 +67,16 @@ import Cart from './cart';
    * @param {string} search
    * @returns {void}
    */
-  printProductsList(search = null) {
-      let productsHTML = '';
+  printProductsList(search: string = null) : void {
+      let productsHTML: string = '';
 
       // Filter products
-      const filteredProducts = this.products
-          .filter((product) => {
-              let showProduct = true;
+      const filteredProducts: IProduct[] = this.products
+          .filter((product: IProduct) => {
+              let showProduct: boolean = true;
               if (search) {
-                  const productName = product.name.toLowerCase();
-                  const searchQuery = search.toLowerCase();
+                  const productName: string = product.name.toLowerCase();
+                  const searchQuery: string = search.toLowerCase();
                   // Reto: Usar expresion regular
                   // https://www.codecademy.com/resources/docs/javascript/regexp
                   // https://regex101.com/
@@ -76,14 +90,15 @@ import Cart from './cart';
           // There are results
 
           // Get page that I have active in the URL
-          const activePage = this.pagination.getActivePage();
+          const activePage: number = this.pagination.getActivePage();
           // Get the number of pages that I need to display
-          const productsPages = this.utils.divideArray(filteredProducts, this.paginationItems);
+          const productsPages: IProduct[][] = this.utils.divideArray(filteredProducts, this.paginationItems);
+
           // Products tht needs to be displayed in the current active page
-          const productsAtPage = productsPages[activePage - 1];
+          const productsAtPage: IProduct[] = productsPages[activePage - 1];
 
           // Load each product card HTML
-          productsAtPage.forEach((product) => {
+          productsAtPage.forEach((product: IProduct) => {
               productsHTML += this.getProductCardHTML(product);
           });
 
@@ -100,10 +115,10 @@ import Cart from './cart';
   /**
    * Return product information as HTML
    * 
-   * @param {object} product 
+   * @param {IProduct} product 
    * @returns {string}
    */
-  getProductCardHTML(product) {
+  getProductCardHTML(product: IProduct): string {
       return `
           <div class="col-3">
               <div class="card">
@@ -124,12 +139,12 @@ import Cart from './cart';
   /**
    * Performing a Search.
    * 
-   * @param {event} event
+   * @param {Event} event
    * @returns {void}
    */
-  doSearch(event) {
+  doSearch(event: Event): void {
       event.preventDefault();
-      const search = document.getElementById('search').value;
+      const search: string = (<HTMLInputElement>document.getElementById('search')).value;
       this.printProductsList(search);
   }
 }
