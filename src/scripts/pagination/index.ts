@@ -1,8 +1,14 @@
+import { IUtils } from '../utils/interfaces';
+import { IPagination } from './interfaces';
+
 /**
  * Pagination is class that helps me to manage content divided by pages.
  */
- class Pagination {
-  constructor(utils) {
+ class Pagination implements IPagination {
+  
+  utils: IUtils;
+
+  constructor(utils: IUtils) {
       this.utils = utils;
   }
 
@@ -11,7 +17,7 @@
    * 
    * @return {number}
    */
-  getActivePage() {
+  getActivePage(): number {
       // Documentation at:
       // https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
       const page = this.utils.getURLParam('page');
@@ -25,7 +31,7 @@
    * @param {number} activePage
    * @returns {string}
    */
-  loadPagination(length, activePage){
+  loadPagination(length: number, activePage: number): string {
       let links = '';
 
       for (let i = 1; i <= length; i++) {

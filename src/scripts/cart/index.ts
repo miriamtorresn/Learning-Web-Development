@@ -1,9 +1,17 @@
+import { IUtils } from '../utils/interfaces';
+import { IProduct, ICartProduct, ICart } from './interfaces';
+
 /**
  * Cart is a class that manages all the actions available for Cart
  * i.e. Add to cart, Delete from cart, Update Cart...
  */
- class Cart {
-  constructor(products, utils) {
+ class Cart implements ICart {
+
+  utils: IUtils;
+  products: IProduct[];
+  cartElements: ICartProduct[];
+ 
+  constructor(products: IProduct[], utils: IUtils) {
       this.cartElements = [];
       this.products = products;
       this.utils = utils;
@@ -13,28 +21,31 @@
    * Updating value of products at Cart
    * 
    * @param {array} products 
+   * @returns {void}
    */
-  updateProducts(products) {
+  updateProducts(products: IProduct[]): void {
       this.products = products;
   }
 
   /**
    * Adding an element to the cart
    * 
-   * @param {event} event 
+   * @param {Event} event 
    * @param {string} id
+   * @returns {void}
    */
-  addToCart(event, id) {
+  addToCart(event: Event, id: string): void {
       this.updateCart(event, () => { this.productExits(id) ? this.updateCartItem(id, 'add') : this.addNewItemToCart(id) });
   }
 
   /**
    * Substracting an element from the cart
    * 
-   * @param {event} event 
+   * @param {Event} event 
    * @param {string} id
+   * @returns {void}
    */
-  substactFromCart(event, id) {
+  substactFromCart(event: Event, id: string): void {
       this.updateCart(event, () => {
           if (this.productExits(id)) {
               this.updateCartItem(id, 'substract');
@@ -45,10 +56,11 @@
   /**
    * Substracting an element from the cart
    * 
-   * @param {event} event 
+   * @param {Event} event 
    * @param {string} id
+   * @returns {void}
    */
-  deleteFromCart(event, id) {
+  deleteFromCart(event: Event, id: string): void {
       this.updateCart(event, () => { this.updateCartItem(id, 'delete'); });
   }
 
@@ -56,9 +68,10 @@
    * Updating cart elements by excecuting a custom action
    * 
    * @param {event} event 
-   * @param {function} action
+   * @param {() => any} action
+   * @returns {void}
    */
-  updateCart(event, action) {
+  updateCart(event: Event, action: () => any): void {
       event.preventDefault();
       action();
       this.updateAllItemsCartQuantity();
@@ -69,19 +82,21 @@
    * Verify if a product exist within the cart
    * 
    * @param {string} id
-   * @return {boolean}
+   * @returns {boolean}
    */
-  productExits(id) {
+  productExits(id: string) : boolean {
       return this.cartElements.some((item) => item.id === id);
   }
 
   /**
    * Updates the number of the items within my cart
    * by reducing the array and making a count of items.
+   * 
+   * @returns {void}
    */
-  updateAllItemsCartQuantity() {
-      const count = this.cartElements.reduce((acumulador, valorActual) => acumulador + valorActual.quantity, 0);
-      this.utils.updateHTMLById('cart-items', count);
+  updateAllItemsCartQuantity(): void {
+      const count: number = this.cartElements.reduce((acumulador, valorActual) => acumulador + valorActual.quantity, 0);
+      this.utils.updateHTMLById('cart-items', count.toString());
   }
 
   /**
@@ -89,11 +104,13 @@
    * 
    * @param {string} id 
    * @param {string} type 
+   * @returns {void}
    */
-  updateCartItem(id, type) {
+  updateCartItem(id: string, type: string): void {
       if (type === 'delete') {
           this.cartElements = this.cartElements.filter((item) => {
-              this.utils.updateHTMLById(`card-product-quantity-${id}`, 0);
+              const quantity: number = 0;
+              this.utils.updateHTMLById(`card-product-quantity-${id}`, quantity.toString());
               return item.id !== id;
           });
       } else {
@@ -102,12 +119,12 @@
                   switch (type) {
                       case 'add':
                           item.quantity += 1;
-                          this.utils.updateHTMLById(`card-product-quantity-${item.id}`, item.quantity);
+                          this.utils.updateHTMLById(`card-product-quantity-${item.id}`, item.quantity.toString());
                           break;
                       case 'substract':
                           if (item.quantity > 1) {
                             item.quantity -= 1;
-                            this.utils.updateHTMLById(`card-product-quantity-${item.id}`, item.quantity);
+                            this.utils.updateHTMLById(`card-product-quantity-${item.id}`, item.quantity.toString());
                           } else {
                             this.updateCartItem(id, 'delete')
                           }                          
@@ -123,24 +140,28 @@
    * Add a new item in my cart
    * 
    * @param {string} id 
+   * @returns {void}
    */
-  addNewItemToCart(id) {
+  addNewItemToCart(id: string): void {
       // Adding to cart
       this.cartElements.push({
           id: id,
           quantity: 1
       });
-      this.utils.updateHTMLById(`card-product-quantity-${id}`, 1);
+      const quantity: number = 1;
+      this.utils.updateHTMLById(`card-product-quantity-${id}`, quantity.toString());
   }
 
   /**
    * Updating summary of the cart items
+   * 
+   * @returns {void}
    */
-  updateCartSummary() {
-      let cartSummaryHTML = '';
+  updateCartSummary(): void {
+      let cartSummaryHTML: string = '';
 
-      this.cartElements.forEach((product) => {
-          const productInformation = this.getCartProduct(product);
+      this.cartElements.forEach((product: ICartProduct) => {
+          const productInformation: IProduct = this.getCartProduct(product);
 
           cartSummaryHTML += `
               <div class="col-3">
@@ -160,10 +181,10 @@
   /**
    * Getting the product from the cart and its details
    * 
-   * @param {object} product
-   * @return {object}
+   * @param {ICartProduct} product
+   * @return {IProduct}
    */
-  getCartProduct(product) {
+  getCartProduct(product: ICartProduct): IProduct {
       const productData = this.products.find((item) => item.id === product.id);
       return { ...product, ...productData };
   }
